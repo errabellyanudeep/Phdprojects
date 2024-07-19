@@ -1,133 +1,71 @@
+#This is the code to make music  from eeg  poaramters paste in w3schools html run  to see  mental activity during mathematics in brain
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Sound Visualization Player</title>
+    <title>Continuous Sound with Tone.js</title>
     <!-- Load Tone.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.1.2/Tone.js"></script>
-    <style>
-        #visualization {
-            width: 100%;
-            height: 200px;
-            background: #000;
-            border: 1px solid #ccc;
-        }
-        button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-    </style>
 </head>
 <body>
-    <h1>EEG of subject0 during mental math(60 seconds)</h1>
-    <button id="playButton">Play</button>
-    <button id="pauseButton">Pause</button>
-    <canvas id="visualization"></canvas>
+    <h1>Continuous Sound with Tone.js</h1>
+    <button onclick="toggleContinuousSound()">clikc here to listen to mental state during Airthematic</button>
 
-    <!-- Script for setting up Tone.js and visualization -->
+    <!-- Script for setting up Tone.js and defining ADSR function -->
     <script>
         // Initialize Tone.js
         const synth = new Tone.Synth().toDestination();
-        const analyzer = new Tone.Analyser("waveform", 1024); // Create an AnalyserNode for waveform visualization
-        synth.connect(analyzer); // Connect the synth to the analyzer
+        let envelope = {
+            attack: 39.848,
+            decay: 0.022,
+            sustain: 1.0,
+            release: 22.128,
+        };
 
         let isPlaying = false;
-        let notes = ["C5", "C#4"]; // Example notes array
-        let playTimeout;
-        let animationFrameId;
-        const canvas = document.getElementById('visualization');
-        const ctx = canvas.getContext('2d');
+        let notes = ["C5","C#4"]; // Example notes array
 
-        document.getElementById('playButton').addEventListener('click', startContinuousSound);
-        document.getElementById('pauseButton').addEventListener('click', stopContinuousSound);
+        function toggleContinuousSound() {
+            if (isPlaying) {
+                stopContinuousSound();
+            } else {
+                startContinuousSound();
+            }
+        }
 
         function startContinuousSound() {
             if (isPlaying) return; // Prevent starting if already playing
-
             isPlaying = true;
-            Tone.getContext().resume().then(() => {
-                // Clear previous timeout if any
-                clearTimeout(playTimeout);
-
-                // Start playing the sound
-                playContinuousSound();
-
-                // Start visualizing
-                visualize();
-            });
+            playContinuousSound();
         }
 
         function stopContinuousSound() {
             if (!isPlaying) return; // Prevent stopping if not playing
-
             isPlaying = false;
-            clearTimeout(playTimeout); // Clear the timeout if stopping before 60 seconds
-
-            // Cancel any ongoing animation frame requests
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-
             // Release any ongoing notes
             synth.releaseAll();
-
-            // Stop visualization
-            cancelAnimationFrame(animationFrameId);
         }
 
         function playContinuousSound() {
             if (!isPlaying) return;
 
             // Use envelope settings
-    
-            synth.envelope.attack = 39.848;
-            synth.envelope.decay = 0.022;
-            synth.envelope.sustain = 1;
-            synth.envelope.release = 22.128;
+            synth.envelope.attack = envelope.attack;
+            synth.envelope.decay = envelope.decay;
+            synth.envelope.sustain = envelope.sustain;
+            synth.envelope.release = envelope.release;
 
             // Trigger the sound with mapped ADSR parameters for each note
             notes.forEach(note => {
                 synth.triggerAttackRelease(note, "8n"); // Play each note for a quarter note duration
             });
 
-            // Repeat the function call if still playing
-            if (isPlaying) {
-                playTimeout = setTimeout(playContinuousSound, 500); // Schedule next note trigger
-            }
-        }
-
-        function visualize() {
-            const data = analyzer.getValue();
-            const width = canvas.width;
-            const height = canvas.height;
-
-            ctx.clearRect(0, 0, width, height); // Clear the canvas
-
-            // Draw the waveform
-            ctx.beginPath();
-            const sliceWidth = width * 1.0 / data.length;
-            let x = 0;
-
-            for (let i = 0; i < data.length; i++) {
-                const v = data[i] * 0.5 + 0.5; // Normalize data
-                const y = v * height;
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-                x += sliceWidth;
-            }
-
-            ctx.lineTo(width, height / 2);
-            ctx.strokeStyle = '#00f';
-            ctx.stroke();
-
-            // Request next frame
-            animationFrameId = requestAnimationFrame(visualize);
+            // Repeat the function call
+            requestAnimationFrame(playContinuousSound);
         }
     </script>
 </body>
 </html>
+
