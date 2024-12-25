@@ -1,0 +1,71 @@
+#This is the code to make music  from eeg  poaramters paste in w3schools html run  to see  mental activity during mathematics in brain
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous Sound with Tone.js</title>
+    <!-- Load Tone.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/15.1.2/Tone.js"></script>
+</head>
+<body>
+    <h1>Continuous Sound with Tone.js</h1>
+    <button onclick="toggleContinuousSound()">clikc here to listen to mental state during Airthematic</button>
+
+    <!-- Script for setting up Tone.js and defining ADSR function -->
+    <script>
+        // Initialize Tone.js
+        const synth = new Tone.Synth().toDestination();
+        let envelope = {
+            attack: 39.848,
+            decay: 0.022,
+            sustain: 1.0,
+            release: 22.128,
+        };
+
+        let isPlaying = false;
+        let notes = ["C5","C#4"]; // Example notes array
+
+        function toggleContinuousSound() {
+            if (isPlaying) {
+                stopContinuousSound();
+            } else {
+                startContinuousSound();
+            }
+        }
+
+        function startContinuousSound() {
+            if (isPlaying) return; // Prevent starting if already playing
+            isPlaying = true;
+            playContinuousSound();
+        }
+
+        function stopContinuousSound() {
+            if (!isPlaying) return; // Prevent stopping if not playing
+            isPlaying = false;
+            // Release any ongoing notes
+            synth.releaseAll();
+        }
+
+        function playContinuousSound() {
+            if (!isPlaying) return;
+
+            // Use envelope settings
+            synth.envelope.attack = envelope.attack;
+            synth.envelope.decay = envelope.decay;
+            synth.envelope.sustain = envelope.sustain;
+            synth.envelope.release = envelope.release;
+
+            // Trigger the sound with mapped ADSR parameters for each note
+            notes.forEach(note => {
+                synth.triggerAttackRelease(note, "8n"); // Play each note for a quarter note duration
+            });
+
+            // Repeat the function call
+            requestAnimationFrame(playContinuousSound);
+        }
+    </script>
+</body>
+</html>
+
